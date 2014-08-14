@@ -25,7 +25,7 @@ def latex_value_prefix(prefix):
     set_latex_value_prefix = prefix
 
 
-def set_latex_value(key, value, t=None, filename=set_latex_value_filename, prefix=set_latex_value_prefix):
+def set_latex_value(key, value, t=None, filename=None, prefix=None):
     r'''Create or update a command in the output file of the form:
     \newcommand{\$prefix$key}{$value}'''
     # Get the file
