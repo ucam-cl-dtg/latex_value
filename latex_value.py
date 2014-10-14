@@ -47,6 +47,8 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
             svalue = '{}\%'.format(value)
         else:
             raise ValueError("Not a percentage")
+    elif t == 'small':
+        svalue = r'\num{{{0:.3g}}}'.format(value)
     else:
         if isinstance(value, float):
             svalue = '{:.2f}'.format(value)
