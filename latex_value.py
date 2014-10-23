@@ -69,3 +69,11 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
     # Write the updated file
     with open(filename, 'w') as wf:
         wf.write(sf)
+
+
+def num2word(n):
+    # https://stackoverflow.com/questions/3154460/python-human-readable-large-numbers/3155023#3155023
+    millnames = ['', 'Thousand', 'Million', 'Billion', 'Trillion']
+    n = float(n)
+    millidx = max(0, min(len(millnames) - 1, int(floor(log10(abs(n)) / 3))))
+    return '%.0f %s' % (n / 10 ** (3 * millidx), millnames[millidx])
