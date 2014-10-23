@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import uncertainties
 import os
+from math import floor, log10
 
 # When incorporating values into a latex document it is useful to be able to include
 # a file which contains all the values as named commands
