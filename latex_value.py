@@ -43,6 +43,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
         if isinstance(value, float):
             svalue = '{:.2f}\%'.format(value * 100)
         elif isinstance(value, uncertainties.UFloat):
+			set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
             svalue = '${:.2L}\%$'.format(value * 100)
         elif isinstance(value, int):
             svalue = '{}\%'.format(value)
@@ -54,6 +55,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
         if isinstance(value, float):
             svalue = '{:.2f}'.format(value)
         elif isinstance(value, uncertainties.UFloat):
+			set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
             svalue = '${:.2L}$'.format(value)
         else:
             svalue = str(value)
