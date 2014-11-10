@@ -36,8 +36,6 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
         prefix = set_latex_value_prefix
     if not os.path.exists(filename):
         open(filename, 'a').close()  # Create file if it does not exist
-    with open(filename) as rf:
-        sf = rf.read()
     # Mangle the value
     if t == 'perc':
         if isinstance(value, float):
@@ -62,6 +60,8 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
     # Set the contents
     kv_line = r'\newcommand{''\\' + prefix + key + r'}{' + svalue + r'}'
     k_part = r'\newcommand{''\\' + prefix + key + r'}'
+    with open(filename) as rf:
+        sf = rf.read()
     start_index = sf.find(k_part)
     if start_index >= 0:  # if already set, update
         startofvalue = start_index + len(k_part) + 1  # 1 for the {
