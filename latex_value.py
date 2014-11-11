@@ -39,22 +39,24 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
     # Mangle the value
     if t == 'perc':
         if isinstance(value, float):
-            svalue = '{:.2f}\%'.format(value * 100)
+            svalue = '{}\%'.format(display_num(value * 100))
         elif isinstance(value, uncertainties.UFloat):
             set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
             svalue = '${:.2L}\%$'.format(value * 100)
         elif isinstance(value, int):
-            svalue = '{}\%'.format(value)
+            svalue = '{}\%'.format(display_num(value))
         else:
             raise ValueError("Not a percentage")
     elif t == 'small':
         svalue = r'\num{{{0:.3g}}}'.format(value)
     else:
         if isinstance(value, float):
-            svalue = '{:.2f}'.format(value)
+            svalue = '{}'.format(display_num(value))
         elif isinstance(value, uncertainties.UFloat):
             set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
             svalue = '${:.2L}$'.format(value)
+        elif isinstance(value, int):
+            svalue = display_num(value)
         else:
             svalue = str(value)
     # Set the contents
@@ -72,6 +74,27 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
     # Write the updated file
     with open(filename, 'w') as wf:
         wf.write(sf)
+
+
+def display_num(num, sig_figs=3):
+    rounded = round_num(num, sig_figs)
+    return '{:,}'.format(rounded).replace(',',r'\,')
+
+
+def round_num(num, sig_figs):
+    if isinstance(num, int):
+        if len(str(abs(num))) < sig_figs:
+            return num
+        else:
+            return floor((round(num, -int(floor(log10(abs(num)))) + (sig_figs -1))))
+    if isinstance(num, float):
+        logged = floor(log10(abs(num)))
+        rounded = round(num, -int(logged) + (sig_figs -1))
+        if logged >= sig_figs:#We don't want a spurious .0 if that is below the sig_figs
+            rounded = floor(rounded)
+        return rounded
+    else:
+        raise TypeError("unimplemented")
 
 
 def num2word(n):
