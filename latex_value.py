@@ -90,7 +90,7 @@ def round_num(num, sig_figs):
     if isinstance(num, float):
         logged = floor(log10(abs(num)))
         rounded = round(num, -int(logged) + (sig_figs -1))
-        if logged >= sig_figs:#We don't want a spurious .0 if that is below the sig_figs
+        if logged >= sig_figs -1:#We don't want a spurious .0 if that is below the sig_figs
             rounded = floor(rounded)
         return rounded
     else:
