@@ -41,7 +41,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
         if isinstance(value, float):
             svalue = '{}\%'.format(display_num(value * 100))
         elif isinstance(value, uncertainties.UFloat):
-            set_latex_value(key + 'Nominal', value.nominal_value * 100, t=t, filename=filename, prefix=prefix)
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
             svalue = '${} \pm {}\%$'.format(display_num(value.nominal_value * 100), display_num(value.std_dev * 100))
         elif isinstance(value, int):
             svalue = '{}\%'.format(display_num(value))
