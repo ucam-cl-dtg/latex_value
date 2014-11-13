@@ -103,3 +103,17 @@ def num2word(n):
     n = float(n)
     millidx = max(0, min(len(millnames) - 1, int(floor(log10(abs(n)) / 3))))
     return '%.0f %s' % (n / 10 ** (3 * millidx), millnames[millidx])
+
+
+def try_shorten(string, length=20):
+    if not isinstance(string, str):
+        return string
+    if len(string) > length:
+        index = string.rfind(' ')
+        if index > length//2:
+            return try_shorten(string[:index])
+        else:
+            return string
+    else:
+        return string
+
