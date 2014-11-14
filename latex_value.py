@@ -42,7 +42,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
             svalue = '{}\%'.format(display_num(value * 100))
         elif isinstance(value, uncertainties.UFloat):
             set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
-            svalue = r'${}\%$'.format(display_num(value * 100))
+            svalue = r'${}\%$'.format(display_num(value * 100)[1:-1])#Strip starting and ending $s to put a % inside
         elif isinstance(value, int):
             svalue = '{}\%'.format(display_num(value))
         else:
