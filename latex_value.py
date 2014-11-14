@@ -42,7 +42,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
             svalue = '{}\%'.format(display_num(value * 100))
         elif isinstance(value, uncertainties.UFloat):
             set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
-            svalue = '${} \pm {}\%$'.format(display_num(value.nominal_value * 100), display_num(value.std_dev * 100))
+            svalue = r'${}\%$'.format(display_num(value * 100))
         elif isinstance(value, int):
             svalue = '{}\%'.format(display_num(value))
         else:
@@ -54,7 +54,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
             svalue = '{}'.format(display_num(value))
         elif isinstance(value, uncertainties.UFloat):
             set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
-            svalue = '${} \pm {}$'.format(display_num(value.nominal_value), display_num(value.std_dev))
+            svalue = display_num(value)
         elif isinstance(value, int):
             svalue = display_num(value)
         else:
@@ -77,6 +77,18 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
 
 
 def display_num(num, sig_figs=3):
+    if isinstance(num, uncertainties.UFloat):
+        rounded_nominal = '{:,}'.format(round_num(num.nominal_value, sig_figs)).replace(',',r'\,')
+        rounded_std_dev = '{:,}'.format(round_num(num.std_dev, sig_figs)).replace(',',r'\,')
+        if '.' in rounded_nominal:
+            ndp = len(rounded_nominal) - rounded_nominal.find('.')
+            sdp = len(rounded_std_dev) - rounded_std_dev.find('.')
+            if sdp > ndp:
+                rounded_std_dev = rounded_std_dev[:-(sdp-ndp)]
+        elif '.' in rounded_std_dev:
+            rounded_std_dev = rounded_std_dev[:rounded_std_dev.find('.')]
+        return rounded_nominal + r' \pm ' + rounded_std_dev
+
     rounded = round_num(num, sig_figs)
     return '{:,}'.format(rounded).replace(',',r'\,')
 
@@ -88,6 +100,8 @@ def round_num(num, sig_figs):
         else:
             return floor((round(num, -int(floor(log10(abs(num)))) + (sig_figs -1))))
     if isinstance(num, float):
+        if num == 0.0:
+            return num
         logged = floor(log10(abs(num)))
         rounded = round(num, -int(logged) + (sig_figs -1))
         if logged >= sig_figs -1:#We don't want a spurious .0 if that is below the sig_figs
