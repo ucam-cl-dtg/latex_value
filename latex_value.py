@@ -87,7 +87,7 @@ def display_num(num, sig_figs=3):
                 rounded_std_dev = rounded_std_dev[:-(sdp-ndp)]
         elif '.' in rounded_std_dev:
             rounded_std_dev = rounded_std_dev[:rounded_std_dev.find('.')]
-        return rounded_nominal + r' \pm ' + rounded_std_dev
+        return '$' + rounded_nominal + r' \pm ' + rounded_std_dev + '$'
 
     rounded = round_num(num, sig_figs)
     return '{:,}'.format(rounded).replace(',',r'\,')
