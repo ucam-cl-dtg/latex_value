@@ -10,7 +10,7 @@ from math import floor, log10
 
 set_latex_value_filename = 'latex.tex'
 set_latex_value_prefix = ''
-
+default_sig_figs = 3
 
 def latex_value_filename(filename):
     global set_latex_value_filename
@@ -26,7 +26,7 @@ def latex_value_prefix(prefix):
     set_latex_value_prefix = prefix
 
 
-def set_latex_value(key, value, t=None, filename=None, prefix=None):
+def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=default_sig_figs):
     r'''Create or update a command in the output file of the form:
     \newcommand{\$prefix$key}{$value}'''
     # Get the file
@@ -39,24 +39,24 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
     # Mangle the value
     if t == 'perc':
         if isinstance(value, float):
-            svalue = '{}\%'.format(display_num(value * 100))
+            svalue = '{}\%'.format(display_num(value * 100, sig_figs=sig_figs))
         elif isinstance(value, uncertainties.UFloat):
-            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
-            svalue = r'${}\%$'.format(display_num(value * 100)[1:-1])#Strip starting and ending $s to put a % inside
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
+            svalue = r'${}\%$'.format(display_num(value * 100, sig_figs=sig_figs)[1:-1])#Strip starting and ending $s to put a % inside
         elif isinstance(value, int):
-            svalue = '{}\%'.format(display_num(value))
+            svalue = '{}\%'.format(display_num(value, sig_figs=sig_figs))
         else:
             raise ValueError("Not a percentage")
     elif t == 'small':
         svalue = r'\num{{{0:.3g}}}'.format(value)
     else:
         if isinstance(value, float):
-            svalue = '{}'.format(display_num(value))
+            svalue = '{}'.format(display_num(value, sig_figs=sig_figs))
         elif isinstance(value, uncertainties.UFloat):
             set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
-            svalue = display_num(value)
+            svalue = display_num(value, sig_figs=sig_figs)
         elif isinstance(value, int):
-            svalue = display_num(value)
+            svalue = display_num(value, sig_figs=sig_figs)
         else:
             svalue = str(value)
     # Set the contents
@@ -76,7 +76,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None):
         wf.write(sf)
 
 
-def display_num(num, sig_figs=3):
+def display_num(num, sig_figs=default_sig_figs):
     if isinstance(num, uncertainties.UFloat):
         rounded_nominal = '{:,}'.format(round_num(num.nominal_value, sig_figs)).replace(',',r'\,')
         rounded_std_dev = '{:,}'.format(round_num(num.std_dev, sig_figs)).replace(',',r'\,')
