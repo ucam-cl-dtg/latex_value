@@ -49,6 +49,11 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
             raise ValueError("Not a percentage")
     elif t == 'small':
         svalue = r'\num{{{0:.3g}}}'.format(value)
+    elif t == 'days':
+        # Produce a years subkey and call ourself again
+        set_latex_value(key + 'Years', value/365, filename=filename, prefix=prefix, sig_figs=sig_figs)
+        set_latex_value(key, value, filename=filename, prefix=prefix, sig_figs=sig_figs)
+        return
     else:
         if isinstance(value, float):
             svalue = '{}'.format(display_num(value, sig_figs=sig_figs))
