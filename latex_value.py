@@ -58,7 +58,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
         if isinstance(value, float):
             svalue = '{}'.format(display_num(value, sig_figs=sig_figs))
         elif isinstance(value, uncertainties.UFloat):
-            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix)
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
             svalue = display_num(value, sig_figs=sig_figs)
         elif isinstance(value, int):
             svalue = display_num(value, sig_figs=sig_figs)
