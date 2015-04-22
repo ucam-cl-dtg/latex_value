@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import uncertainties
 import os
+import fcntl
 from math import floor, log10
 
 # When incorporating values into a latex document it is useful to be able to include
@@ -67,18 +68,21 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
     # Set the contents
     kv_line = r'\newcommand{''\\' + prefix + key + r'}{' + svalue + r'}'
     k_part = r'\newcommand{''\\' + prefix + key + r'}'
-    with open(filename) as rf:
-        sf = rf.read()
-    start_index = sf.find(k_part)
-    if start_index >= 0:  # if already set, update
-        startofvalue = start_index + len(k_part) + 1  # 1 for the {
-        endofvalue = sf.find('}\n', startofvalue)
-        sf = sf[:startofvalue] + svalue + sf[endofvalue:]
-    else:
-        sf += kv_line + '\n'
-    # Write the updated file
-    with open(filename, 'w') as wf:
-        wf.write(sf)
+    with open(filename, 'w') as lf:
+        fcntl.lockf(lf.fileno(), fcntl.LOCK_EX)
+        with open(filename) as rf:
+            sf = rf.read()
+        start_index = sf.find(k_part)
+        if start_index >= 0:  # if already set, update
+            startofvalue = start_index + len(k_part) + 1  # 1 for the {
+            endofvalue = sf.find('}\n', startofvalue)
+            sf = sf[:startofvalue] + svalue + sf[endofvalue:]
+        else:
+            sf += kv_line + '\n'
+        # Write the updated file
+        with open(filename, 'w') as wf:
+            wf.write(sf)
+        fcntl.lockf(lf.fileno(), fcntl.LOCK_UN)
 
 
 def display_num(num, sig_figs=default_sig_figs):
