@@ -68,7 +68,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
     # Set the contents
     kv_line = r'\newcommand{''\\' + prefix + key + r'}{' + svalue + r'}'
     k_part = r'\newcommand{''\\' + prefix + key + r'}'
-    with open(filename, 'w') as lf:
+    with open(filename + '.lock', 'w') as lf:
         fcntl.lockf(lf.fileno(), fcntl.LOCK_EX)
         with open(filename) as rf:
             sf = rf.read()
