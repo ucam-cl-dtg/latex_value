@@ -2,6 +2,7 @@
 import uncertainties
 import os
 import fcntl
+import datetime
 from math import floor, log10
 
 # When incorporating values into a latex document it is useful to be able to include
@@ -63,6 +64,9 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
             svalue = display_num(value, sig_figs=sig_figs)
         elif isinstance(value, int):
             svalue = display_num(value, sig_figs=sig_figs)
+        elif isinstance(value, datetime.date):
+            set_latex_value(key + 'Month', value.strftime('%B %Y'), t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
+            svalue = str(value)
         else:
             svalue = str(value)
     # Set the contents
