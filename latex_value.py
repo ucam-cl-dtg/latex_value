@@ -3,7 +3,8 @@ import uncertainties
 import os
 import fcntl
 import datetime
-from math import floor, log10
+import re
+from math import floor, log10, copysign
 
 # When incorporating values into a latex document it is useful to be able to include
 # a file which contains all the values as named commands
@@ -89,10 +90,54 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
         fcntl.lockf(lf.fileno(), fcntl.LOCK_UN)
 
 
+def find_sig_figs_significance(num, sig_figs):
+    """
+    Find the smallest value which is singificant to this number of significant figures
+    i.e. if num is -1.1 and sig_figs is 3 then returns -0.01
+    """
+    if num == 0.0:
+        sig_figs_position = (sig_figs - 1)
+    else:
+        sig_figs_position = (sig_figs - 1) - round(log10(abs(num)))
+    if sig_figs_position < 0:
+        sig_figs_significance = 1.0 * 10 ** (-sig_figs_position)
+    else:
+        sig_figs_significance = 1.0 * 10 ** (-sig_figs_position)
+    return copysign(sig_figs_significance, num)
+
+
+to_significance_after_point = re.compile(r'(-?)[0-9]\.([0-9]*)[1-9](e.*)?')
+to_significance_before_point = re.compile(r'(-?)[1-9]*(0*)(\.0*)?(e.*)?')
+def find_significance(num, sig_figs):
+    match_after_point = to_significance_after_point.match(str(num))
+    match_before_point = to_significance_before_point.match(str(num))
+    if match_after_point:
+        match = match_after_point
+        significance = '{sign}{before_point}.{after_point}1'.format(sign=match.group(1), before_point='0', after_point='0'*len(match.group(2)))
+        exponent = match.group(3)
+        if exponent:
+            significance += exponent
+        significance = float(significance)
+    elif match_before_point:
+        match = match_before_point
+        significance = '{sign}1{after_sig}'.format(sign=match.group(1), after_sig=match.group(2))
+        exponent = match.group(4)
+        if exponent:
+            significance += exponent
+        significance = float(significance)
+    else:
+        raise ValueError('No match on number, could not find significance: ' + num)
+    return significance
+
+
 def display_num(num, sig_figs=default_sig_figs):
     if isinstance(num, uncertainties.UFloat):
-        rounded_nominal = '{:,}'.format(round_num(num.nominal_value, sig_figs)).replace(',',r'\,')
-        rounded_std_dev = '{:,}'.format(round_num(num.std_dev, sig_figs)).replace(',',r'\,')
+        rounded_nominal_num = round_num(num.nominal_value, sig_figs)
+        rounded_nominal = '{:,}'.format(rounded_nominal_num).replace(',',r'\,')
+        if abs(num.std_dev) < abs(find_sig_figs_significance(num.nominal_value, sig_figs)):
+            rounded_std_dev = '{:,}'.format(round_num(0.0, sig_figs)).replace(',',r'\,')
+        else:
+            rounded_std_dev = '{:,}'.format(round_num(num.std_dev, sig_figs)).replace(',',r'\,')
         if '.' in rounded_nominal:
             ndp = len(rounded_nominal) - rounded_nominal.find('.')
             sdp = len(rounded_std_dev) - rounded_std_dev.find('.')
@@ -111,7 +156,7 @@ def round_num(num, sig_figs):
         if len(str(abs(num))) < sig_figs:
             return num
         else:
-            return floor((round(num, -int(floor(log10(abs(num)))) + (sig_figs -1))))
+            return floor(round(num, (sig_figs -1) - floor(log10(abs(num)))))
     if isinstance(num, float):
         if num == 0.0:
             return num
