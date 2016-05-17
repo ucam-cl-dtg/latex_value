@@ -171,10 +171,10 @@ def round_num(num, sig_figs):
 
 def num2word(n):
     # https://stackoverflow.com/questions/3154460/python-human-readable-large-numbers/3155023#3155023
-    millnames = ['', 'thousand', 'million', 'billion', 'trillion']
+    millnames = ['', ' thousand', ' million', ' billion', ' trillion', ' quadrillion', 'quintillion']
     n = float(n)
     millidx = max(0, min(len(millnames) - 1, int(floor(log10(abs(n)) / 3))))
-    return '%.0f %s' % (n / 10 ** (3 * millidx), millnames[millidx])
+    return '%.0f%s' % (n / 10 ** (3 * millidx), millnames[millidx])
 
 
 def try_shorten(string, length=20):
