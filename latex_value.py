@@ -4,6 +4,7 @@ import os
 import fcntl
 import datetime
 import re
+import decimal
 from math import floor, log10, copysign
 
 # When incorporating values into a latex document it is useful to be able to include
@@ -39,6 +40,11 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
         prefix = set_latex_value_prefix
     if not os.path.exists(filename):
         open(filename, 'a').close()  # Create file if it does not exist
+
+    # Turn Decimals to floats
+    if isinstance(value, decimal.Decimal):
+        value = float(value)
+
     # Mangle the value
     if t == 'perc':
         if isinstance(value, float):
@@ -49,7 +55,7 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
         elif isinstance(value, int):
             svalue = '{}\%'.format(display_num(value, sig_figs=sig_figs))
         else:
-            raise ValueError("Not a percentage")
+            raise ValueError("Not a percentage" + str(type(value)))
     elif t == 'small':
         svalue = r'\num{{{0:.3g}}}'.format(value)
     elif t == 'days':
