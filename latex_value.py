@@ -175,12 +175,15 @@ def round_num(num, sig_figs):
         raise TypeError("unimplemented")
 
 
-def num2word(n):
+def num2word(number):
     # https://stackoverflow.com/questions/3154460/python-human-readable-large-numbers/3155023#3155023
     millnames = ['', ' thousand', ' million', ' billion', ' trillion', ' quadrillion', 'quintillion']
-    n = float(n)
-    millidx = max(0, min(len(millnames) - 1, int(floor(log10(abs(n)) / 3))))
-    return '%.0f%s' % (n / 10 ** (3 * millidx), millnames[millidx])
+    n = round_num(float(number), default_sig_figs)
+    millidx = max(0, min(len(millnames) - 1, int((floor(log10(abs(n))) // 3))))
+    # If less than 10000 then just display it as normal
+    if millidx == 0 or log10(abs(n)) < 4:
+        return display_num(number)
+    return '%s%s' % (display_num(n / 10 ** (3 * millidx)), millnames[millidx])
 
 
 def try_shorten(string, length=20):

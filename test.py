@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from latex_value import display_num, find_significance, find_sig_figs_significance
+from latex_value import display_num, find_significance, find_sig_figs_significance, num2word
 from uncertainties import ufloat
 
 class TestDisplayNum(unittest.TestCase):
@@ -33,6 +33,13 @@ class TestFindSignificance(unittest.TestCase):
         cases = [(0.13, 0.01), (-1.23, -0.01), (1.3e-10, 1e-11), (13, 1), (130000, 10000)]
         for test_case, result in cases:
             self.assertEqual(find_significance(test_case, 3), result)
+
+
+class TestNum2Word(unittest.TestCase):
+    def test(self):
+        cases = [(12.3, "12.3"), (123, "123"), (1230, r"1\,230"), (12300, "12.3 thousand"), (123000, "123 thousand"), (1230000, "1.23 million"), (12300000, "12.3 million"), (123000000, "123 million"), (1230000000, "1.23 billion"), (-1230000000, "-1.23 billion")]
+        for test_case, result in cases:
+            self.assertEqual(num2word(test_case), result)
 
 
 if __name__ == '__main__':
