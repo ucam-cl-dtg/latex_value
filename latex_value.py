@@ -56,6 +56,16 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
             svalue = '{}\%'.format(display_num(value, sig_figs=sig_figs))
         else:
             raise ValueError("Not a percentage" + str(type(value)))
+    if t == 'bareperc':
+        if isinstance(value, float):
+            svalue = display_num(value * 100, sig_figs=sig_figs)
+        elif isinstance(value, uncertainties.UFloat):
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
+            svalue = display_num(value * 100, sig_figs=sig_figs)
+        elif isinstance(value, int):
+            svalue = display_num(value, sig_figs=sig_figs)
+        else:
+            raise ValueError("Not a percentage" + str(type(value)))
     elif t == 'small':
         svalue = r'\num{{{0:.3g}}}'.format(value)
     elif t == 'days':
