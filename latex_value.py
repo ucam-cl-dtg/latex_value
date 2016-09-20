@@ -178,7 +178,7 @@ def reduce_to_decimal_places(decimal_places, rounded_nominal_num):
     rounded_nominal = '{:,}'.format(rounded_nominal_num).replace(',',r'\,')
     if '.' in rounded_nominal and rounded_nominal_num != 0:
         if abs(rounded_nominal_num) < smallest_value:
-            rounded_nominal = '<{}'.format(math.copysign(smallest_value, rounded_nominal_num))
+            rounded_nominal = '<{}'.format(copysign(smallest_value, rounded_nominal_num))
             return rounded_nominal
         current_decimal_places = len(rounded_nominal.split('.')[1])
         if current_decimal_places > decimal_places:
