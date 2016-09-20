@@ -15,6 +15,7 @@ from math import floor, log10, copysign
 set_latex_value_filename = 'latex.tex'
 set_latex_value_prefix = ''
 default_sig_figs = 3
+default_decimal_places = -1 # No limit
 
 def latex_value_filename(filename):
     global set_latex_value_filename
@@ -146,25 +147,43 @@ def find_significance(num, sig_figs):
     return significance
 
 
-def display_num(num, sig_figs=default_sig_figs):
+def display_num(num, sig_figs=default_sig_figs, decimal_places=default_decimal_places):
     if isinstance(num, uncertainties.UFloat):
         rounded_nominal_num = round_num(num.nominal_value, sig_figs)
-        rounded_nominal = '{:,}'.format(rounded_nominal_num).replace(',',r'\,')
+        if decimal_places != -1:
+            rounded_nominal = reduce_to_decimal_places(decimal_places,rounded_nominal_num)
+        else:
+            rounded_nominal = '{:,}'.format(rounded_nominal_num).replace(',',r'\,')
         if abs(num.std_dev) < abs(find_sig_figs_significance(num.nominal_value, sig_figs)):
             rounded_std_dev = '{:,}'.format(round_num(0.0, sig_figs)).replace(',',r'\,')
         else:
             rounded_std_dev = '{:,}'.format(round_num(num.std_dev, sig_figs)).replace(',',r'\,')
         if '.' in rounded_nominal:
-            ndp = len(rounded_nominal) - rounded_nominal.find('.')
-            sdp = len(rounded_std_dev) - rounded_std_dev.find('.')
+            ndp = len(rounded_nominal) - rounded_nominal.find('.') -1 # we want the index of the number after the '.'
+            sdp = len(rounded_std_dev) - rounded_std_dev.find('.') -1
             if sdp > ndp:
-                rounded_std_dev = rounded_std_dev[:-(sdp-ndp)]
+                rounded_std_dev = '{:,}'.format(round(num.std_dev, ndp)).replace(',',r'\,')
         elif '.' in rounded_std_dev:
             rounded_std_dev = rounded_std_dev[:rounded_std_dev.find('.')]
         return '$' + rounded_nominal + r' \pm ' + rounded_std_dev + '$'
 
     rounded = round_num(num, sig_figs)
-    return '{:,}'.format(rounded).replace(',',r'\,')
+    if decimal_places != -1:
+        return reduce_to_decimal_places(decimal_places, rounded)
+    else:
+        return '{:,}'.format(rounded).replace(',',r'\,')
+
+def reduce_to_decimal_places(decimal_places, rounded_nominal_num):
+    smallest_value = 1.0/(10.0**decimal_places)
+    rounded_nominal = '{:,}'.format(rounded_nominal_num).replace(',',r'\,')
+    if '.' in rounded_nominal and rounded_nominal_num != 0:
+        if abs(rounded_nominal_num) < smallest_value:
+            rounded_nominal = '<{}'.format(math.copysign(smallest_value, rounded_nominal_num))
+            return rounded_nominal
+        current_decimal_places = len(rounded_nominal.split('.')[1])
+        if current_decimal_places > decimal_places:
+            rounded_nominal = '{:,}'.format(round(rounded_nominal_num, decimal_places)).replace(',',r'\,')
+    return rounded_nominal
 
 
 def round_num(num, sig_figs):

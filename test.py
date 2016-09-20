@@ -19,6 +19,13 @@ class TestDisplayNum(unittest.TestCase):
                 , (ufloat(10.0,0.01), r'$10.0 \pm 0.0$')]
         for test_case, result in cases:
             self.assertEqual(display_num(test_case), result)
+    def test_decimal_places(self):
+        cases = [(0, '0'), (-1, '-1'), (0.012, '0.01'), (0.016, '0.02')
+                , (ufloat(0,0), r'$0.0 \pm 0.0$'), (ufloat(10,0), r'$10.0 \pm 0.0$')
+                , (ufloat(0.12, 0.012), r'$0.12 \pm 0.01$'), (ufloat(0.12, 0.016), r'$0.12 \pm 0.02$')
+                , (ufloat(-0.12, 0.016), r'$-0.12 \pm 0.02$')]
+        for test_case, result in cases:
+            self.assertEqual(display_num(test_case, decimal_places=2), result)
 
 
 class TestFindSigFigsSignificance(unittest.TestCase):
