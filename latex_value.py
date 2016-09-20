@@ -31,7 +31,7 @@ def latex_value_prefix(prefix):
     set_latex_value_prefix = prefix
 
 
-def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=default_sig_figs):
+def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=default_sig_figs, decimal_places=default_decimal_places):
     r'''Create or update a command in the output file of the form:
     \newcommand{\$prefix$key}{$value}'''
     # Get the file
@@ -49,41 +49,41 @@ def set_latex_value(key, value, t=None, filename=None, prefix=None, sig_figs=def
     # Mangle the value
     if t == 'perc':
         if isinstance(value, float):
-            svalue = '{}\%'.format(display_num(value * 100, sig_figs=sig_figs))
+            svalue = '{}\%'.format(display_num(value * 100, sig_figs=sig_figs, decimal_places=decimal_places))
         elif isinstance(value, uncertainties.UFloat):
-            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
-            svalue = r'${}\%$'.format(display_num(value * 100, sig_figs=sig_figs)[1:-1])#Strip starting and ending $s to put a % inside
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs, decimal_places=decimal_places)
+            svalue = r'${}\%$'.format(display_num(value * 100, sig_figs=sig_figs, decimal_places=decimal_places)[1:-1])#Strip starting and ending $s to put a % inside
         elif isinstance(value, int):
-            svalue = '{}\%'.format(display_num(value, sig_figs=sig_figs))
+            svalue = '{}\%'.format(display_num(value, sig_figs=sig_figs, decimal_places=decimal_places))
         else:
             raise ValueError("Not a percentage" + str(type(value)))
     elif t == 'bareperc':
         if isinstance(value, float):
-            svalue = display_num(value * 100, sig_figs=sig_figs)
+            svalue = display_num(value * 100, sig_figs=sig_figs, decimal_places=decimal_places)
         elif isinstance(value, uncertainties.UFloat):
-            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
-            svalue = display_num(value * 100, sig_figs=sig_figs)
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs, decimal_places=decimal_places)
+            svalue = display_num(value * 100, sig_figs=sig_figs, decimal_places=decimal_places)
         elif isinstance(value, int):
-            svalue = display_num(value, sig_figs=sig_figs)
+            svalue = display_num(value, sig_figs=sig_figs, decimal_places=decimal_places)
         else:
             raise ValueError("Not a percentage" + str(type(value)))
     elif t == 'small':
         svalue = r'\num{{{0:.3g}}}'.format(value)
     elif t == 'days':
         # Produce a years subkey and call ourself again
-        set_latex_value(key + 'Years', value/365, filename=filename, prefix=prefix, sig_figs=sig_figs)
-        set_latex_value(key, value, filename=filename, prefix=prefix, sig_figs=sig_figs)
+        set_latex_value(key + 'Years', value/365, filename=filename, prefix=prefix, sig_figs=sig_figs, decimal_places=decimal_places)
+        set_latex_value(key, value, filename=filename, prefix=prefix, sig_figs=sig_figs, decimal_places=decimal_places)
         return
     else:
         if isinstance(value, float):
-            svalue = '{}'.format(display_num(value, sig_figs=sig_figs))
+            svalue = '{}'.format(display_num(value, sig_figs=sig_figs, decimal_places=decimal_places))
         elif isinstance(value, uncertainties.UFloat):
-            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
-            svalue = display_num(value, sig_figs=sig_figs)
+            set_latex_value(key + 'Nominal', value.nominal_value, t=t, filename=filename, prefix=prefix, sig_figs=sig_figs, decimal_places=decimal_places)
+            svalue = display_num(value, sig_figs=sig_figs, decimal_places=decimal_places)
         elif isinstance(value, int):
-            svalue = display_num(value, sig_figs=sig_figs)
+            svalue = display_num(value, sig_figs=sig_figs, decimal_places=decimal_places)
         elif isinstance(value, datetime.date):
-            set_latex_value(key + 'Month', value.strftime('%B %Y'), t=t, filename=filename, prefix=prefix, sig_figs=sig_figs)
+            set_latex_value(key + 'Month', value.strftime('%B %Y'), t=t, filename=filename, prefix=prefix, sig_figs=sig_figs, decimal_places=decimal_places)
             svalue = str(value)
         else:
             svalue = str(value)
